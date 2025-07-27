@@ -1,0 +1,160 @@
+Module(
+    body=[
+        ImportFrom(
+            module='pyspark.sql',
+            names=[
+                alias(name='SparkSession')],
+            level=0),
+        ImportFrom(
+            module='pyspark.sql.functions',
+            names=[
+                alias(name='col')],
+            level=0)],
+    type_ignores=[])Module(
+    body=[
+        Assign(
+            targets=[
+                Name(id='df_raw', ctx=Store())],
+            value=Call(
+                func=Attribute(
+                    value=Name(id='spark', ctx=Load()),
+                    attr='sql',
+                    ctx=Load()),
+                args=[
+                    JoinedStr(
+                        values=[
+                            Constant(value='\n\n    SELECT \n\n        customer_id,\n\n\n\n        age,\n\n\n\n        country\n\n    FROM customers\n\n            \n\n')])],
+                keywords=[])),
+        Expr(
+            value=Call(
+                func=Attribute(
+                    value=Name(id='df_raw', ctx=Load()),
+                    attr='createOrReplaceTempView',
+                    ctx=Load()),
+                args=[
+                    Constant(value='df_raw')],
+                keywords=[]))],
+    type_ignores=[])Module(
+    body=[
+        Assign(
+            targets=[
+                Name(id='df_filtered', ctx=Store())],
+            value=Call(
+                func=Attribute(
+                    value=Name(id='spark', ctx=Load()),
+                    attr='sql',
+                    ctx=Load()),
+                args=[
+                    Constant(value='\n\nSELECT *\n\nFROM df_raw\n\nWHERE age > 30                   \n\n')],
+                keywords=[])),
+        Expr(
+            value=Call(
+                func=Attribute(
+                    value=Name(id='df_filtered', ctx=Load()),
+                    attr='createOrReplaceTempView',
+                    ctx=Load()),
+                args=[
+                    Constant(value='df_filtered')],
+                keywords=[]))],
+    type_ignores=[])Module(
+    body=[
+        Assign(
+            targets=[
+                Name(id='df_transformed', ctx=Store())],
+            value=Call(
+                func=Attribute(
+                    value=Name(id='df_filtered', ctx=Load()),
+                    attr='withColumn',
+                    ctx=Load()),
+                args=[
+                    Constant(value='age_group'),
+                    BinOp(
+                        left=Call(
+                            func=Attribute(
+                                value=BinOp(
+                                    left=Call(
+                                        func=Name(id='col', ctx=Load()),
+                                        args=[
+                                            Constant(value='age')],
+                                        keywords=[]),
+                                    op=Div(),
+                                    right=Constant(value=10)),
+                                attr='cast',
+                                ctx=Load()),
+                            args=[
+                                Constant(value='int')],
+                            keywords=[]),
+                        op=Mult(),
+                        right=Constant(value=10))],
+                keywords=[])),
+        Assign(
+            targets=[
+                Name(id='df_transformed', ctx=Store())],
+            value=Call(
+                func=Attribute(
+                    value=Name(id='spark', ctx=Load()),
+                    attr='sql',
+                    ctx=Load()),
+                args=[
+                    Constant(value="\n\nSELECT \n\n        *,\n\n       CASE\n\n           WHEN age_group = 30 THEN '30s'\n\n           WHEN age_group = 40 THEN '40s'\n\n           WHEN age_group = 50 THEN '50s'\n\n           ELSE 'Other'\n\n       END AS age_group_label\n\nFROM df_filtered\n\n                        \n\n                ")],
+                keywords=[])),
+        Expr(
+            value=Call(
+                func=Attribute(
+                    value=Name(id='df_transformed', ctx=Load()),
+                    attr='createOrReplaceTempView',
+                    ctx=Load()),
+                args=[
+                    Constant(value='df_transformed')],
+                keywords=[]))],
+    type_ignores=[])Module(
+    body=[
+        Assign(
+            targets=[
+                Name(id='df_agg', ctx=Store())],
+            value=Call(
+                func=Attribute(
+                    value=Name(id='spark', ctx=Load()),
+                    attr='sql',
+                    ctx=Load()),
+                args=[
+                    Constant(value='\n\nSELECT  \n\n      COUNT(*) AS customer_count,\n\n      AVG(age) AS avg_age,\n\n    count(t.age_group_label) AS age_group_count     \n\nFROM df_transformed AS t\n\nGROUP BY t.country, t.age_group_label\n\n')],
+                keywords=[]))],
+    type_ignores=[])Module(
+    body=[
+        Assign(
+            targets=[
+                Name(id='df_cust', ctx=Store())],
+            value=Call(
+                func=Attribute(
+                    value=Name(id='spark', ctx=Load()),
+                    attr='sql',
+                    ctx=Load()),
+                args=[
+                    Constant(value='\n\nSELECT \n\n   Reg.County AS county,\n\n   Reg.Country AS country,\n\n    SUM(Prod.Spend) AS spend,\n\n    count(Prod.Product) AS product_count\n\nFROM LH.Lib.Region as Reg\n\nINNER JOIN LH.Lib.Products AS Prod\n\nON Reg.ProductID = Prod.ProductID\n\nGROUP BY Reg.County, Reg.Country\n\n')],
+                keywords=[])),
+        Expr(
+            value=Call(
+                func=Attribute(
+                    value=Name(id='df_cust', ctx=Load()),
+                    attr='createOrReplaceTempView',
+                    ctx=Load()),
+                args=[
+                    Constant(value='df_cust')],
+                keywords=[]))],
+    type_ignores=[])Module(
+    body=[
+        Assign(
+            targets=[
+                Name(id='df_final', ctx=Store())],
+            value=Constant(value='\n\nSELECT \n\nFROM df_transformed AS t\n\nJOIN df_cust AS c\n\nON t.county = c.county\n\n\n\n')),
+        Expr(
+            value=Call(
+                func=Attribute(
+                    value=Name(id='df_final', ctx=Load()),
+                    attr='createOrReplaceTempView',
+                    ctx=Load()),
+                args=[
+                    Constant(value='df_final')],
+                keywords=[]))],
+    type_ignores=[])
