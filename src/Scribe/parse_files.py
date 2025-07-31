@@ -8,10 +8,10 @@ logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
 
-def _get_code_cell(folder_path: str, display : bool = False) -> List[str]:
+def _get_nb_code(file_path: str, display : bool = False) -> List[str]:
 
     try:
-        with open(folder_path, "r") as f:
+        with open(file_path, "r") as f:
             notebook = json.load(f)
     except Exception as e:
         logging.error(f"Error loading notebook: {e}")
@@ -78,6 +78,16 @@ def _write_tree_to_file(trees: List[ast.AST], file_path: str = "tree.txt") -> No
         logging.info(f"All AST trees written to {file_path}.")
     except Exception as e:
         logging.error(f"Error writing AST trees to file: {e}")
+        raise
+
+
+def _get_code_file(file_path : str):
+    try:
+        with open(file_path,'r') as file:
+            content = file.read()
+            return content
+    except Exception as e:
+        logging.error(f"Error loading py file: {e}")
         raise
 
 
