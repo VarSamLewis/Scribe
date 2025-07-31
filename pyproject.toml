@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "Scribe"
+version = "0.0.1"
+description = "CLI AI tool to auto document code"
+authors = ["VarSamLewis <samlewis1999.sl@gmail.com>"]
+license = "MIT"
+
+[[tool.poetry.packages]]
+include = "Scribe"
+from = "src"
+
+[tool.poetry.dependencies]
+python = ">=3.11"
+typer = "*"
+openai = "*"
+rich = "*"
+
+[tool.poetry.scripts]
+Scribe = "Scribe.cli:app"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
