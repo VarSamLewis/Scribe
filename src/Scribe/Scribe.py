@@ -1,5 +1,5 @@
 ﻿from rich import console
-from Scribe.parse_nb import _get_code_cell, _parse_ast
+from Scribe.parse_files import _get_nb_code, _parse_ast, _get_code_file
 from typing import List, Dict
 from openai import OpenAI
 from rich.console import Console
@@ -7,7 +7,9 @@ from rich.text import Text
 from pathlib import Path
 import ast
 import os
+
 console = Console()
+
 System_Prompt = """\
 Role: Code Documenter
 Guidelines  
@@ -46,12 +48,16 @@ def document_code_str(string : str):
     # Fixed: Just pass the string directly to LLM_Call - don't try to iterate over it
     LLM_Call(string)
 
-def process_notebook(notebook_path: str):
-    """Process a specific notebook file"""
-    code_cells = _get_code_cell(notebook_path, display=False)  
-    ast_tree = _parse_ast(code_cells, display=False)
+def process_file(file_path : str):
     
-    AI_Input = "\n".join([ast.dump(node, indent=2) for node in ast_tree])
+    if file_path.endswith('.ipynb') and Path(file_path).exists():
+        code_cells = _get_nb_code(file_path, display=False)  
+        ast_tree = _parse_ast(code_cells, display=False)
+    
+        AI_Input = "\n".join([ast.dump(node, indent=2) for node in ast_tree])
+
+    elif file_path.endswith('.py') and Path(file_path).exists():
+        AI_Input = _get_code_file(file_path)
     
     LLM_Call(AI_Input)
 
