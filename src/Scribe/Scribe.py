@@ -59,7 +59,34 @@ def process_file(file_path : str):
     elif file_path.endswith('.py') and Path(file_path).exists():
         AI_Input = _get_code_file(file_path)
     
-    LLM_Call(AI_Input)
+    return LLM_Call(AI_Input)
+
+def write_documentation(content, output_file_path):
+    if not output_file_path:
+        return
+    Path(output_file_path).parent.mkdir(parents=True, exist_ok=True)
+    with open(output_file_path, "w", encoding="utf-8") as f:
+        f.write(content)
+    if not content:
+        console.print("[bold red]No content to write.[/bold red]")
+        return
+
+    console.print(
+        f"[bold green]Documentation written to {output_file_path} and/or {output_ast_path} [/bold green]")
+
+def write_ast(content, output_file_path):
+    if not output_file_path:
+        return
+    Path(output_file_path).parent.mkdir(parents=True, exist_ok=True)
+    with open(output_file_path, "w", encoding="utf-8") as f:
+        f.write(content)
+    if not content:
+        console.print("[bold red]No content to write.[/bold red]")
+        return
+
+    console.print(
+        f"[bold green]Documentation written to {output_file_path} and/or {output_ast_path} [/bold green]")
+
 
 if __name__ == "__main__":  
     pass

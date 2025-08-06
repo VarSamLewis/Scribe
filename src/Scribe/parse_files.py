@@ -70,16 +70,6 @@ def _parse_ast(cells : List[str], display : bool= False  ) -> Dict:
 
     return trees
 
-def _write_tree_to_file(trees: List[ast.AST], file_path: str = "tree.txt") -> None:
-    try:
-        with open(file_path, "w") as f:
-            for i, tree in enumerate(trees):
-                f.write(ast.dump(tree, indent=4))
-        logging.info(f"All AST trees written to {file_path}.")
-    except Exception as e:
-        logging.error(f"Error writing AST trees to file: {e}")
-        raise
-
 
 def _get_code_file(file_path : str):
     try:
